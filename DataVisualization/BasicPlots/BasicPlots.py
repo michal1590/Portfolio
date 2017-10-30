@@ -40,7 +40,7 @@ plt.plot(x,y,'blue')
 plt.xlabel('x axis')
 plt.ylabel('y values')
 plt.title('2D plot')
-plt.axis([-1,11, 1.5*min(y), 1.5*max(y) ])
+plt.axis([-1, 11, 1.5*min(y), 1.5*max(y)])
 plt.grid(True)
 
 
@@ -97,6 +97,8 @@ plt.title('surface 3D')
 ax1.set_xlabel('x axis')
 ax1.set_ylabel('y axis')
 ax1.set_zlabel('z axis')
+
+
 
 plt.show()
 
