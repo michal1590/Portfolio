@@ -43,19 +43,19 @@ for figNum, kernel in enumerate (('linear', 'rbf', 'poly')):
     plt.figure(figNum)
     
     #ploting decision surface
-    u = np.linspace(min(X.iloc[:,0])*0.9,max(X.iloc[:,0])*1.1, num=10)
-    v = np.linspace(min(X.iloc[:,1])*0.9,max(X.iloc[:,1])*1.1, num=10)
+    u = np.linspace(min(X.iloc[:,0])*0.9,max(X.iloc[:,0])*1.1, num=100)
+    v = np.linspace(min(X.iloc[:,1])*0.9,max(X.iloc[:,1])*1.1, num=100)
     XX, YY = np.meshgrid(u,v) #mesh to create a decision surface
     
     converted_mesh = np.c_[XX.ravel(), YY.ravel()] # mesh in different format
     Z = svc.predict(converted_mesh) # calculating estimator response for each point
     Z = Z.reshape(XX.shape) # back to the initial format
-    plt.contourf(XX, YY, Z, 2)
-    
+    plt.contourf(XX, YY, Z, 2, cmap=plt.cm.jet)
+    c=['r','b','g']
     #plotting point of decision surface
-    plt.scatter(X[y==0].iloc[:,0], X[y==0].iloc[:,1], label = data.target_names[0])
-    plt.scatter(X[y==1].iloc[:,0], X[y==1].iloc[:,1], label = data.target_names[1])
-    plt.scatter(X[y==2].iloc[:,0], X[y==2].iloc[:,1], label = data.target_names[2])
+    plt.scatter(X[y==0].iloc[:,0], X[y==0].iloc[:,1],c='c', label = data.target_names[0])
+    plt.scatter(X[y==1].iloc[:,0], X[y==1].iloc[:,1],c='g', label = data.target_names[1])
+    plt.scatter(X[y==2].iloc[:,0], X[y==2].iloc[:,1],c='r', label = data.target_names[2])
     
     plt.xlabel(iris.columns[0])
     plt.ylabel(iris.columns[1])
