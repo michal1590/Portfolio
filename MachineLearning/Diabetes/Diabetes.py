@@ -32,3 +32,6 @@ lasso.alpha = best_alpha
 lasso.fit(X_train, y_train)
 lasso_score = lasso.score(X_test, y_test)
 print('best lasso score is {}'.format(lasso_score))
+
+
+
