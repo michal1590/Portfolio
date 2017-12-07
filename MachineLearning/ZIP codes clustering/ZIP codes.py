@@ -34,9 +34,9 @@ geo_loc.columns = ['lat','lon']
 #final results
 df = df.drop('pozycja/Point/pos', axis=1)
 df = pd.concat([df, geo_loc], axis=1)
-df.to_csv('lodzkie_geo.csv')
+#df.to_csv('lodzkie_geo.csv')
 #%%
-df = pd.read_csv('lodzkie_geo.csv', index_col=0)
+#df = pd.read_csv('lodzkie_geo.csv', index_col=0)
 
 #removing outlayers
 print('removing outlayers')
@@ -84,7 +84,8 @@ plt.xlabel('lat')
 plt.ylabel('lon')
 
 #decision boundary
-XX,YY = np.meshgrid(np.linspace(df.lat.min(),df.lat.max(),1000), np.linspace(df.lon.min(),df.lon.max(),1000))
+XX,YY = np.meshgrid(np.linspace(df.lat.min(),df.lat.max(),1000), 
+                    np.linspace(df.lon.min(),df.lon.max(),1000))
 mesh_conv = np.c_[XX.ravel(),YY.ravel()]
 Z = knn.predict(mesh_conv)
 Z = Z.reshape(XX.shape)
@@ -93,14 +94,14 @@ kontur_lodzkiego = np.flipud(np.load('kontur_lodzkiego.npy'))
 final= np.multiply(Z,kontur_lodzkiego) 
 
 plt.figure()
-plt.title('countour')
+plt.title('filled countour')
 plt.xlabel('lat')
 plt.ylabel('lon')
 plt.contourf(XX,YY,final, cmap=plt.cm.prism)
 
 plt.figure()
 plt.contour(XX,YY,final)
-plt.title('filled contour')
+plt.title('contour')
 plt.xlabel('lat')
 plt.ylabel('lon')
 

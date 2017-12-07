@@ -90,10 +90,10 @@ class ImageReader:
         
 
 #
-obiekt = ImageReader('E:\\projekt_do_XL_Catlyn\\obiekt\\source',
-                     'E:\\projekt_do_XL_Catlyn\\obiekt\\results', 'input_file.pdf')
+obiekt = ImageReader('E:\\portfolio\\Portfolio\\ImageReader\\Other\\Source',
+                     'E:\\portfolio\\Portfolio\\ImageReader\\Other\\Results', 'input_file.pdf')
 
-#MAMA ZMANALAKDA
-#obiekt.splitPDF(1,2)
-#obiekt.convert()
-#obiekt.reading()
+#E:\portfolio\Portfolio\ImageReader\Other
+obiekt.splitPDF(1,2)
+obiekt.convert()
+obiekt.reading()
