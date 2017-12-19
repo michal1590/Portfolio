@@ -55,33 +55,67 @@ def gradientDescent(X, y, theta, alpha, maxIterNum, treshold):
     return theta, J_overTime, numIter
 
 
+#def featureScaling(X):
+    
+def featureScaling(X,mean=None, std=None):
+    """
+    scale inputs to zero-mean and 1 std
+    """
+    
+    if mean is None:
+        mean = X.mean(axis=0)
+    if std is None:
+        std = X.std(axis=0)
+    
+    return (X-mean)/std, mean, std
+
+
 
 
 #%% loading and preprocessing data
 
 plt.close('all')
 
-data = pd.read_csv(r'E:\Nauka\Machine Learning by Stanford University\week2\exercise\ex1\ex1data1.txt',
-                   header=None, names=['Population','Profit'])
+
+# estimation of company profits as a function of city size
+#data = pd.read_csv(r'E:\Nauka\Machine Learning by Stanford University\week2\exercise\ex1\ex1data1.txt',
+#                   header=None, names=['Population','Profit'])
 
 
-#data.dropna(axis='index',inplace=True)
-#data.plot.scatter('Population','Profit')
-#plt.title('raw data')
-#data = data.iloc[:10,:]
+#boston house-prices dataset - price estimation
+from sklearn.datasets import load_boston
+boston = load_boston()
 
+data = pd.DataFrame(boston.data,columns=boston.feature_names)
+data['target'] = boston.target
+
+"""
+#NA removing and basic data presentation
+data.dropna(axis='index',inplace=True)
+data.plot.scatter('Population','Profit')
+plt.title('raw data')
+data = data.iloc[:10,:]
+"""
 (m,n) = data.shape
 n = n-1 #because target column was included
 
 #going to numpy for calculation part
-X = data.Population.values.reshape((m,n))
-y = data.Profit.values.reshape((m,1))
+X = data.iloc[:,:-1].values.reshape((m,n))
+y = data.iloc[:,-1].values.reshape((m,1))
 
-X = np.insert(X, 0, np.ones(m), axis=1) #interception column
+#X = np.insert(X, 0, np.ones(m), axis=1) #interception column
 
 
 X, X_test, y, y_test = train_test_split(X,y)
 (m,n) = X.shape
+
+X, mean, std = featureScaling(X)
+X_test, _,_ = featureScaling(X_test, mean, std)
+
+
+X = np.insert(X, 0, np.ones(m), axis=1) #interception column
+n = n + 1
+X_test = np.insert(X_test, 0, np.ones(len(y_test)), axis=1) #interception column
 
 """
 #some test points
@@ -125,15 +159,16 @@ plt.ylabel('value of cost function')
 
 from sklearn.linear_model import LinearRegression
 
-LR = LinearRegression()
+LR = LinearRegression(fit_intercept=True)
 LR.fit(X,y)
 coef = LR.coef_
 coef_intercept = LR.intercept_
-thetaSKL = np.array([coef_intercept,coef[:,1:]])
+coef[0,0]=coef_intercept
+thetaSKL = np.transpose(coef)
 
-print('sklearn coefficients are: ', coef_intercept, ' and ', coef[:,1:])
+print('sklearn coefficients are: ',thetaSKL)
 
-y_SKL = LR.predict(X_test)
+y_SKL = LR.predict(X_test) - coef_intercept #
 y_model = computePrediction(X_test, theta)
 
 #Mean Square Error
@@ -147,75 +182,76 @@ print('MSE for sklearn prediction is {0:.4f}, when for my model MSE is {1:.4f}'.
 
 #%% Visualization
 
-dataAndLines = plt.figure()
-feature = 1 # feature to scatter - col0 is an intercept column
+trainAndModel = plt.figure()
+feature = 6 # feature to visualate - col0 is an intercept column
 
-plt.title('train and test data')
+plt.title('test data and model prediction')
 plt.ylabel('target')
-plt.xlabel(data.columns[feature-1])
+plt.xlabel(data.columns[feature-1]) 
 
 
-#train and test data
-plt.scatter(X[:,feature],y,label='Train data', c='g', marker='o')
 
-plt.scatter(X_test[:,feature], computePrediction(X_test,thetaSKL), 
-            label='skelarn prediction', c='r', marker = '*', linewidths=5)
-plt.scatter(X_test[:,feature], computePrediction(X_test,theta), 
-            label='model prediction', c='b', marker = 'x')
+#train data and model predictions
+plt.scatter(X_test[:,feature],y_test,label='Test data', c='g', marker='o')
 
-#regression lines
-linesX = np.stack((X.min(axis=0),X.max(axis=0)),0) 
-plt.plot(linesX[:,feature], computePrediction(linesX,thetaSKL),label='skelarn regresion line',
-         c='r', lw=5)
 
-plt.plot(linesX[:,feature], computePrediction(linesX,theta),label='model regresion line',
-         c='b')
+plt.scatter(X_test[:,feature], y_model, label='model prediction', c='b',
+            marker = 'x')
+
+linesX = np.ones((2,2))
+linesX[0,1] = min(X_test[:,feature])
+linesX[1,1] = max(X_test[:,feature])
+#linesX = np.insert(linesX,0,np.ones(2), axis=1)
+plt.plot(linesX[:,1], computePrediction(linesX,(theta[0],theta[feature])),
+         label='model regresion line', c='b')
+
 plt.legend()
 
 
+# sklearn prediction vs model prediction
+modelVsSKL = plt.figure()
+plt.title('sklearn prediction vs model prediction')
+plt.ylabel('target')
+plt.xlabel(data.columns[feature-1]) 
+
+#sklearn
+plt.scatter(X_test[:,feature], y_SKL, label='sklearn prediction', c='r', 
+            marker = '*', linewidths=2)
+plt.plot(linesX[:,1], computePrediction(linesX,(thetaSKL[0],thetaSKL[feature])),
+            label='skelarn regresion line', c='r', lw=5)
+#model
+plt.scatter(X_test[:,feature], y_model, label='model prediction', c='b',
+            marker = 'x')
+plt.plot(linesX[:,1], computePrediction(linesX,(theta[0],theta[feature])),
+         label='model regresion line', c='b')
+
+plt.legend()
+
+
+"""
 # more J visualization
 
-theta0 = np.linspace(-10,10,100)
-theta1 = np.linspace(-10,10,100)
-Jxx, Jyy = np.meshgrid(theta0, theta1)
+par1 = 5 #theta values to visualate, par = 0 -> intercept coef
+par2 = 6
+
+thetaX = np.linspace(-30,30,100)
+thetaY = np.linspace(-30,30,100)
+Jxx, Jyy = np.meshgrid(thetaX, thetaY)
 Z = np.ones(Jxx.shape)
 thetaTemp = np.zeros(theta.shape)
 
-
-for i in range(len(theta0)):
-    for j in range(len(theta1)):
-        thetaTemp[0] = theta0[i]
-        thetaTemp[1] = theta0[j]
+for i in range(len(thetaX)):
+    for j in range(len(thetaY)):
+        thetaTemp[0] = thetaX[i]
+        thetaTemp[1] = thetaY[j]
         Z[i,j] = computeCost(X, y, thetaTemp)
 
-
-
-
 Z = np.transpose(Z)
-
-J_cont = plt.figure()
-plt.contour(Jxx, Jyy, Z, np.logspace(-2,3,num=15))
-plt.scatter(theta[0],theta[1],marker='x', c='r', linewidths=50)
-plt.scatter(thetaSKL[0],thetaSKL[1],marker='*', c='k', linewidths=1)
-plt.xlabel('theta0')
-plt.ylabel('theta1')
-plt.title('Cost as a function of theta')
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#np.logspace(-0,3,num=15)
+J_figure = plt.figure()
+plt.contour(thetaX, thetaY, Z, np.logspace(0,3,num=30))
+plt.scatter(theta[par1],theta[par2],marker='x', c='r', linewidths=50)
+#plt.scatter(thetaSKL[0],thetaSKL[1],marker='*', c='k', linewidths=1)
+plt.xlabel(data.columns[par1-1])
+plt.ylabel(data.columns[par2-1])
+plt.title('Cost as a function of theta')"""
