@@ -2,7 +2,7 @@
 """
 Created on Tue Dec  5 19:43:54 2017
 
-my implementation of Linear Regression with one variable
+my implementation of Linear Regression
 
 
 @author: Michal
@@ -134,7 +134,7 @@ print('cost for theta =[-1,2]',J)
 #%% fitting data and estimating best theta values
 
 #initialize fitting parameters
-theta = np.zeros((n,1))
+theta = np.zeros((n,1)) # theta represents fitting coefficients
 alpha = 0.01
 maxIterNum = 5000
 treshold = 1e-11
