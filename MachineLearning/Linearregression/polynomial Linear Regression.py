@@ -32,6 +32,13 @@ def computeCost(X, y, theta):
     """
     return np.sum(((computePrediction(X,theta) - y) ** 2) / (2*m))
 
+def computeCost(X, y, theta):
+    """
+    compute 'cost' of fitting with regularization:
+    J=((h-y)^2 + lambda) / (2*m) 
+    """
+    return np.sum(((computePrediction(X,theta) - y) ** 2) / (2*m))
+
 
 def gradientDescent(X, y, theta, alpha, maxIterNum, treshold):
     """
@@ -160,6 +167,35 @@ plt.xlabel('# of iterations')
 plt.ylabel('value of cost function')
 
 
-plt.figure('orgData')
+plt.figure('results')
 y_predicted = computePrediction(X,theta)
 plt.scatter(range(m),y_predicted)
+
+
+
+#%%comparison to sklearn 
+
+from sklearn.linear_model import LinearRegression
+
+LR = LinearRegression(fit_intercept=True,normalize=True)
+LR.fit(X,y)
+coef = LR.coef_
+coef_intercept = LR.intercept_
+coef[0,0]=coef_intercept
+thetaSKL = np.transpose(coef)
+
+print('sklearn coefficients are: ',thetaSKL)
+
+y_SKL = LR.predict(X) - coef_intercept#
+plt.figure('sklearn')
+plt.scatter(range(m),y_SKL)
+#y_model = computePrediction(X_test, theta)
+
+#Mean Square Error
+#MSE_SKL = np.sum((y_test-y_SKL)**2) / len(y_test)
+#MSE_model = np.sum((y_test-y_model)**2) / len(y_test)
+
+#print('MSE for sklearn prediction is {0:.4f}, when for my model MSE is {1:.4f}'.
+#      format(MSE_SKL, MSE_model))
+
+
